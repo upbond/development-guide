@@ -279,11 +279,11 @@ copy_github_templates() {
     fi
     
     # PR テンプレートをコピー
-    if [[ -f "$SCRIPT_DIR/templates/pull_request_template.yml" ]]; then
-        cp "$SCRIPT_DIR/templates/pull_request_template.yml" ".github/"
+    if [[ -f "$SCRIPT_DIR/templates/pull_request_template.md" ]]; then
+        cp "$SCRIPT_DIR/templates/pull_request_template.md" ".github/"
         print_success "PR テンプレートをコピーしました。"
     else
-        print_warning "PR テンプレートが見つかりません: $SCRIPT_DIR/templates/pull_request_template.yml"
+        print_warning "PR テンプレートが見つかりません: $SCRIPT_DIR/templates/pull_request_template.md"
     fi
 }
 
