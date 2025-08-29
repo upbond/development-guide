@@ -52,11 +52,9 @@ main() {
     print_header
     
     echo -e "${GREEN}このスクリプトは以下の機能を提供します：${NC}"
-    echo "• 📁 AI駆動開発用プロジェクト構造の作成"
-    echo "• 🤖 GitHub Actions (Gemini CLI) の設定"
+    echo "• 🤖 GitHub Actions設定ガイダンス"
     echo "• 📝 Issue/PR テンプレートの設置"
-    echo "• 🔧 開発環境設定ファイルの生成"
-    echo "• 📚 ドキュメントテンプレートのコピー"
+    echo "• 🔧 オプション設定ファイルの生成"
     echo ""
     
     # ディレクトリ選択
@@ -188,11 +186,9 @@ confirm_setup() {
     
     echo -e "${CYAN}📋 セットアップ予定の内容：${NC}"
     echo "• 🎯 ターゲットディレクトリ: $TARGET_DIR"
-    echo "• 📁 プロジェクト構造の作成"
-    echo "• 🤖 GitHub Actions の設置"
+    echo "• 🤖 GitHub Actions 設定ガイダンス"
     echo "• 📝 Issue/PR テンプレートの設置"
-    echo "• 📚 ドキュメントの配置"
-    echo "• 🔧 設定ファイルの生成"
+    echo "• 🔧 オプション設定ファイルの生成"
     echo ""
     
     echo -e "${YELLOW}⚡ 上記の内容でセットアップを実行しますか？ (y/n): ${NC}"
@@ -211,22 +207,17 @@ setup_ai_driven_environment() {
     # ターゲットディレクトリ作成
     create_target_directory
     
-    # プロジェクト構造作成
-    create_project_structure
-    
     # GitHub設定ファイルをコピー
     setup_github_configuration
     
-    # ドキュメントをコピー
-    setup_documentation
+    # オプション設定ファイル生成の選択
+    select_optional_files
     
-    # 設定ファイル生成
-    generate_configuration_files
-    
-    # 環境設定ガイド生成
-    generate_environment_guide
     
     print_success "AI駆動開発環境のセットアップが完了しました！"
+    
+    # 次のステップの案内
+    print_next_steps
 }
 
 # ターゲットディレクトリ作成
@@ -242,24 +233,17 @@ create_target_directory() {
     cd "$TARGET_DIR" || exit 1
 }
 
-# プロジェクト構造作成
-create_project_structure() {
-    print_info "📁 プロジェクト構造を作成中..."
+# GitHub ディレクトリ構造作成
+create_github_structure() {
+    print_info "📁 GitHub設定用ディレクトリを作成中..."
     
-    # 基本ディレクトリ構造
-    directories=(
+    # GitHub関連ディレクトリのみ作成
+    github_dirs=(
         ".github/ISSUE_TEMPLATE"
         ".github/workflows"
-        "docs/technical"
-        "docs/business"
-        "docs/integration"
-        "docs/guides"
-        "src"
-        "tests"
-        "scripts"
     )
     
-    for dir in "${directories[@]}"; do
+    for dir in "${github_dirs[@]}"; do
         mkdir -p "$dir"
         print_success "作成: $dir/"
     done
@@ -267,69 +251,394 @@ create_project_structure() {
 
 # GitHub設定のセットアップ
 setup_github_configuration() {
-    print_info "🤖 GitHub Actions & テンプレートを設置中..."
+    print_info "🤖 GitHub Actions設定ガイダンス"
+    
+    # GitHub ディレクトリ構造作成
+    create_github_structure
+    
+    # テンプレートファイルをコピー
+    copy_github_templates
+    
+    # LLMプロバイダーの選択
+    select_llm_provider
+    
+    # 選択されたプロバイダーに応じたガイダンスを表示
+    display_llm_setup_guide
+}
+
+# GitHubテンプレートのコピー
+copy_github_templates() {
+    print_info "📝 GitHub テンプレートを設置中..."
     
     # Issue テンプレートをコピー
-    if [[ -d "$SCRIPT_DIR/.github/ISSUE_TEMPLATE" ]]; then
-        cp -r "$SCRIPT_DIR/.github/ISSUE_TEMPLATE/"* ".github/ISSUE_TEMPLATE/"
+    if [[ -d "$SCRIPT_DIR/templates/ISSUE_TEMPLATE" ]]; then
+        cp -r "$SCRIPT_DIR/templates/ISSUE_TEMPLATE/"* ".github/ISSUE_TEMPLATE/"
         print_success "Issue テンプレートをコピーしました。"
+    else
+        print_warning "Issue テンプレートが見つかりません: $SCRIPT_DIR/templates/ISSUE_TEMPLATE"
     fi
     
     # PR テンプレートをコピー
-    if [[ -f "$SCRIPT_DIR/.github/pull_request_template.yml" ]]; then
-        cp "$SCRIPT_DIR/.github/pull_request_template.yml" ".github/"
+    if [[ -f "$SCRIPT_DIR/templates/pull_request_template.yml" ]]; then
+        cp "$SCRIPT_DIR/templates/pull_request_template.yml" ".github/"
         print_success "PR テンプレートをコピーしました。"
-    fi
-    
-    # GitHub Actions ワークフローをコピー
-    if [[ -d "$SCRIPT_DIR/.github/workflows" ]]; then
-        cp "$SCRIPT_DIR/.github/workflows/"*.yml ".github/workflows/" 2>/dev/null || true
-        print_success "GitHub Actions ワークフローをコピーしました。"
+    else
+        print_warning "PR テンプレートが見つかりません: $SCRIPT_DIR/templates/pull_request_template.yml"
     fi
 }
 
-# ドキュメントセットアップ
-setup_documentation() {
-    print_info "📚 ドキュメントを設置中..."
+# LLMプロバイダー選択関数
+select_llm_provider() {
+    print_step "LLMプロバイダーの選択"
     
-    # docsディレクトリのコピー
-    if [[ -d "$SCRIPT_DIR/docs" ]]; then
-        cp -r "$SCRIPT_DIR/docs/"* "docs/"
-        print_success "ドキュメントをコピーしました。"
-    fi
+    echo -e "${CYAN}GitHub Actionsで用いるLLMプロバイダーを選択してください：${NC}\n"
     
-    # ルートレベルのドキュメント
-    root_docs=(
-        "README.md"
-        "CLAUDE.md"
-        "CONTRIBUTING.md"
+    local options=(
+        "🤖 Gemini CLI - Google AI による自動化"
+        "⚡ Claude Code - Anthropic によるコード生成"  
+        "🧠 OpenAI GPT - ChatGPT 統合"
+        "👨‍💻 GitHub Copilot - リアルタイムコード補完"
+        "🔧 カスタム - 独自のLLMプロバイダー"
     )
     
-    for doc in "${root_docs[@]}"; do
-        if [[ -f "$SCRIPT_DIR/$doc" ]]; then
-            cp "$SCRIPT_DIR/$doc" "./"
-            print_success "コピー: $doc"
-        fi
+    PS3="$(echo -e ${YELLOW}"選択してください (番号を入力): "${NC})"
+    
+    select opt in "${options[@]}"; do
+        case $REPLY in
+            1)
+                SELECTED_LLM_PROVIDER="gemini-cli"
+                print_success "選択されたプロバイダー: Gemini CLI"
+                break
+                ;;
+            2)
+                SELECTED_LLM_PROVIDER="claude-code"
+                print_success "選択されたプロバイダー: Claude Code"
+                break
+                ;;
+            3)
+                SELECTED_LLM_PROVIDER="openai-gpt"
+                print_success "選択されたプロバイダー: OpenAI GPT"
+                break
+                ;;
+            4)
+                SELECTED_LLM_PROVIDER="github-copilot"
+                print_success "選択されたプロバイダー: GitHub Copilot"
+                break
+                ;;
+            5)
+                SELECTED_LLM_PROVIDER="custom"
+                print_success "選択されたプロバイダー: カスタム"
+                break
+                ;;
+            *)
+                print_warning "無効な選択です。1-5の番号を入力してください。"
+                ;;
+        esac
     done
 }
 
-# 設定ファイル生成
-generate_configuration_files() {
-    print_info "🔧 設定ファイルを生成中..."
+# LLM設定ガイド表示関数
+display_llm_setup_guide() {
+    print_step "🤖 $SELECTED_LLM_PROVIDER 設定ガイド"
     
-    # .gitignore 生成
-    generate_gitignore
+    case "$SELECTED_LLM_PROVIDER" in
+        "gemini-cli")
+            display_gemini_cli_guide
+            ;;
+        "claude-code")
+            display_claude_code_guide
+            ;;
+        "openai-gpt")
+            display_openai_gpt_guide
+            ;;
+        "github-copilot")
+            display_github_copilot_guide
+            ;;
+        "custom")
+            display_custom_llm_guide
+            ;;
+    esac
+}
+
+# Gemini CLI設定ガイド
+display_gemini_cli_guide() {
+    echo -e "${GREEN}🤖 Gemini CLI 設定ガイド${NC}\n"
     
-    # package.json テンプレート生成
-    generate_package_json
+    echo -e "${CYAN}Gemini CLI GitHub Actions を設定するには以下の手順に従ってください：${NC}\n"
     
-    # 環境変数テンプレート生成
-    generate_env_template
+    echo "1. 📋 公式テンプレートの参照:"
+    echo -e "   ${YELLOW}https://github.com/google-github-actions/run-gemini-cli${NC}"
+    echo ""
     
-    # dev.sh スクリプトテンプレート生成
-    generate_dev_script
+    echo "2. 🔧 必要なファイル設定:"
+    echo "   • GitHub Actions ワークフローファイル"
+    echo "   • Issue/PR テンプレート"
+    echo "   • 環境変数とシークレット"
+    echo ""
     
-    print_success "設定ファイルの生成が完了しました。"
+    echo "3. 🗝️  必要なシークレット:"
+    echo "   • GEMINI_API_KEY"
+    echo "   • GOOGLE_CLOUD_PROJECT"
+    echo "   • その他のGCP認証情報"
+    echo ""
+    
+    echo -e "${BLUE}💡 詳細な設定手順は上記URLで最新情報を確認してください。${NC}\n"
+}
+
+# Claude Code設定ガイド
+display_claude_code_guide() {
+    echo -e "${GREEN}⚡ Claude Code 設定ガイド${NC}\n"
+    
+    echo -e "${CYAN}Claude Code GitHub Actions を設定するには以下の手順に従ってください：${NC}\n"
+    
+    echo "1. 📋 公式GitHub Actions ガイドの参照:"
+    echo -e "   ${YELLOW}https://docs.anthropic.com/ja/docs/claude-code/github-actions${NC}"
+    echo ""
+    
+    echo "2. 🌐 Claude Code へのアクセス:"
+    echo -e "   ${YELLOW}https://claude.ai/code${NC}"
+    echo ""
+    
+    echo "3. 🔧 必要なファイル設定:"
+    echo "   • GitHub Actions ワークフローファイル"
+    echo "   • Issue/PR テンプレート"
+    echo "   • Claude Code 統合設定"
+    echo ""
+    
+    echo "4. 🤝 GitHub 統合機能:"
+    echo "   • GitHub Issues での自動分析"
+    echo "   • PR作成・レビューの自動化"
+    echo "   • リアルタイムコード生成・修正"
+    echo ""
+    
+    echo -e "${BLUE}💡 詳細な設定手順は上記URLで最新情報を確認してください。${NC}\n"
+}
+
+# OpenAI GPT設定ガイド
+display_openai_gpt_guide() {
+    echo -e "${GREEN}🧠 OpenAI GPT 設定ガイド${NC}\n"
+    
+    echo -e "${CYAN}ChatGPT API を使用したGitHub Actions：${NC}\n"
+    
+    echo "1. 🔑 API キーの取得:"
+    echo -e "   ${YELLOW}https://platform.openai.com/api-keys${NC}"
+    echo ""
+    
+    echo "2. 🤖 GitHub Actions設定例:"
+    echo "   • openai/gpt-action などのアクションを使用"
+    echo "   • カスタムワークフローの作成"
+    echo ""
+    
+    echo "3. 🗝️  必要なシークレット:"
+    echo "   • OPENAI_API_KEY"
+    echo "   • その他の設定値"
+    echo ""
+    
+    echo -e "${BLUE}💡 コミュニティ作成のアクションを参考に設定してください。${NC}\n"
+}
+
+# GitHub Copilot設定ガイド
+display_github_copilot_guide() {
+    echo -e "${GREEN}👨‍💻 GitHub Copilot 設定ガイド${NC}\n"
+    
+    echo -e "${CYAN}GitHub Copilot の活用：${NC}\n"
+    
+    echo "1. 💳 GitHub Copilot の有効化:"
+    echo "   • GitHub アカウントでCopilot を契約"
+    echo "   • IDE でCopilot 拡張機能をインストール"
+    echo ""
+    
+    echo "2. 🔧 IDE統合:"
+    echo "   • VS Code、IntelliJ IDEA などでの使用"
+    echo "   • リアルタイムコード補完"
+    echo ""
+    
+    echo "3. 🤖 GitHub Actions との連携:"
+    echo "   • Copilot Chat での自動化相談"
+    echo "   • コードレビューでの活用"
+    echo ""
+    
+    echo -e "${BLUE}💡 GitHub Copilot は主にIDE内での使用がメインです。${NC}\n"
+}
+
+# カスタムLLM設定ガイド
+display_custom_llm_guide() {
+    echo -e "${GREEN}🔧 カスタムLLM 設定ガイド${NC}\n"
+    
+    echo -e "${CYAN}独自のLLMプロバイダーを使用する場合：${NC}\n"
+    
+    echo "1. 📝 GitHub Actions ワークフローの作成:"
+    echo "   • .github/workflows/ にYAMLファイルを作成"
+    echo "   • カスタムAPIとの統合"
+    echo ""
+    
+    echo "2. 🔐 認証とシークレット:"
+    echo "   • 必要なAPIキーをGitHub Secretsに設定"
+    echo "   • 適切なアクセス権限の設定"
+    echo ""
+    
+    echo "3. 🧪 テストと検証:"
+    echo "   • ワークフローの動作確認"
+    echo "   • エラーハンドリングの実装"
+    echo ""
+    
+    echo -e "${BLUE}💡 GitHub Actions のドキュメントを参考に独自の統合を構築してください。${NC}\n"
+}
+
+
+# オプション設定ファイル生成の選択
+select_optional_files() {
+    print_step "追加設定ファイルの選択"
+    
+    echo -e "${CYAN}どの設定ファイルを作成しますか？（複数選択可能）${NC}\n"
+    
+    echo -e "${YELLOW}以下から作成したいファイルを選択してください：${NC}"
+    
+    local files_to_create=()
+    
+    # .gitignore
+    if ask_yes_no "📁 .gitignore を作成しますか？"; then
+        files_to_create+=("gitignore")
+    fi
+    
+    # dev.sh
+    if ask_yes_no "🚀 dev.sh (開発スクリプト) を作成しますか？"; then
+        files_to_create+=("devsh")
+    fi
+    
+    # SETUP_GUIDE.md
+    if ask_yes_no "📋 SETUP_GUIDE.md (セットアップガイド) を作成しますか？"; then
+        files_to_create+=("setupguide")
+    fi
+    
+    echo ""
+    print_info "選択されたファイルを生成中..."
+    
+    # 選択されたファイルを生成
+    for file in "${files_to_create[@]}"; do
+        case "$file" in
+            "gitignore")
+                generate_gitignore_safe
+                ;;
+            "devsh")
+                generate_dev_script_safe
+                ;;
+            "setupguide")
+                copy_setup_guide
+                ;;
+        esac
+    done
+    
+    if [[ ${#files_to_create[@]} -eq 0 ]]; then
+        print_info "追加設定ファイルはスキップされました。"
+    else
+        print_success "選択されたファイルの生成が完了しました。"
+    fi
+}
+
+# Yes/No 質問関数
+ask_yes_no() {
+    local question="$1"
+    while true; do
+        echo -e "${YELLOW}$question (y/n): ${NC}"
+        read -r response
+        case "$response" in
+            [Yy]*)
+                return 0  # Yes
+                ;;
+            [Nn]*)
+                return 1  # No
+                ;;
+            *)
+                print_warning "y または n で回答してください。"
+                ;;
+        esac
+    done
+}
+
+# 既存ファイルの上書き確認関数
+confirm_file_overwrite() {
+    local file_path="$1"
+    local file_name="$2"
+    
+    if [[ -f "$file_path" ]]; then
+        echo -e "${YELLOW}⚠️  既存の '$file_name' が見つかりました。${NC}"
+        echo -e "${YELLOW}上書きしますか？ (y/n/d): ${NC}"
+        echo "  y: 上書きする"
+        echo "  n: スキップする"
+        echo "  d: 差分を表示して判断する"
+        
+        read -r choice
+        case "$choice" in
+            [Yy]*)
+                return 0  # 上書きする
+                ;;
+            [Dd]*)
+                if command -v diff &> /dev/null; then
+                    echo -e "${CYAN}現在のファイルと新しいファイルの差分:${NC}"
+                    # 一時ファイルを作成して差分表示（実装は簡略化）
+                    echo "（差分表示機能は実装を簡略化しています）"
+                fi
+                echo -e "${YELLOW}上書きしますか？ (y/n): ${NC}"
+                read -r choice2
+                [[ "$choice2" =~ ^[Yy]$ ]] && return 0 || return 1
+                ;;
+            *)
+                return 1  # スキップする
+                ;;
+        esac
+    else
+        return 0  # ファイルが存在しないので作成する
+    fi
+}
+
+# .gitignore生成（安全版）
+generate_gitignore_safe() {
+    if [[ -f ".gitignore" ]]; then
+        echo -e "${YELLOW}⚠️  既存の '.gitignore' が見つかりました。${NC}"
+        echo -e "${YELLOW}どうしますか？ (m/o/c): ${NC}"
+        echo "  m: AI開発用エントリを既存ファイルに追加する"
+        echo "  o: 完全に上書きする"
+        echo "  c: スキップする"
+        
+        read -r choice
+        case "$choice" in
+            [Mm]*)
+                merge_gitignore
+                ;;
+            [Oo]*)
+                generate_gitignore
+                ;;
+            *)
+                print_info "スキップ: .gitignore"
+                ;;
+        esac
+    else
+        generate_gitignore
+    fi
+}
+
+# .gitignore にAI開発用エントリを追加
+merge_gitignore() {
+    print_info "AI開発用エントリを既存の.gitignoreに追加中..."
+    
+    # AI開発ツール用のエントリを追加
+    cat >> .gitignore << 'EOF'
+
+# AI開発ツール（setup.shによる追加）
+.claude/
+.copilot/
+.ai-cache/
+
+# 環境変数ファイル
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+EOF
+    
+    print_success "AI開発用エントリを.gitignoreに追加しました。"
 }
 
 # .gitignore生成
@@ -395,80 +704,15 @@ EOF
     print_success "生成: .gitignore"
 }
 
-# package.json テンプレート生成
-generate_package_json() {
-    local project_name=$(basename "$TARGET_DIR")
-    
-    cat > package.json << EOF
-{
-  "name": "$project_name",
-  "version": "1.0.0",
-  "description": "AI駆動開発プロジェクト",
-  "main": "src/index.js",
-  "scripts": {
-    "dev": "./dev.sh",
-    "start": "node src/index.js",
-    "test": "jest",
-    "lint": "eslint src/",
-    "format": "prettier --write src/",
-    "type-check": "tsc --noEmit",
-    "setup": "./setup.sh"
-  },
-  "keywords": [
-    "ai-driven-development",
-    "claude-code",
-    "gemini-cli",
-    "github-copilot"
-  ],
-  "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "jest": "^29.0.0",
-    "eslint": "^8.0.0",
-    "prettier": "^3.0.0",
-    "typescript": "^5.0.0"
-  },
-  "dependencies": {}
-}
-EOF
-    print_success "生成: package.json"
-}
 
-# 環境変数テンプレート生成
-generate_env_template() {
-    cat > .env.example << 'EOF'
-# AI駆動開発環境設定
 
-# Gemini AI設定
-GEMINI_API_KEY=your_gemini_api_key_here
-
-# OpenAI設定（ChatGPT/GPT-4用）
-OPENAI_API_KEY=your_openai_api_key_here
-
-# GitHub設定
-GITHUB_TOKEN=your_github_token_here
-
-# Google Cloud設定（Gemini CLI用）
-GOOGLE_CLOUD_PROJECT=your_gcp_project_id
-GCP_WIF_PROVIDER=your_workload_identity_provider
-SERVICE_ACCOUNT_EMAIL=your_service_account@project.iam.gserviceaccount.com
-
-# GitHub App設定（高度な統合用）
-APP_ID=your_github_app_id
-APP_PRIVATE_KEY=your_github_app_private_key
-
-# データベース設定（必要に応じて）
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=your_database_name
-DB_USER=your_db_user
-DB_PASSWORD=your_db_password
-
-# アプリケーション設定
-NODE_ENV=development
-PORT=3000
-EOF
-    print_success "生成: .env.example"
+# dev.sh スクリプトテンプレート生成（安全版）
+generate_dev_script_safe() {
+    if confirm_file_overwrite "dev.sh" "dev.sh"; then
+        generate_dev_script
+    else
+        print_info "スキップ: dev.sh"
+    fi
 }
 
 # dev.sh スクリプトテンプレート生成
@@ -591,123 +835,60 @@ EOF
     print_success "生成: dev.sh (実行可能)"
 }
 
-# 環境設定ガイド生成
-generate_environment_guide() {
-    print_info "📋 環境設定ガイドを生成中..."
+# SETUP_GUIDE.md のコピー
+copy_setup_guide() {
+    if [[ -f "$SCRIPT_DIR/templates/SETUP_GUIDE.md" ]]; then
+        if confirm_file_overwrite "SETUP_GUIDE.md" "SETUP_GUIDE.md"; then
+            cp "$SCRIPT_DIR/templates/SETUP_GUIDE.md" "./"
+            print_success "コピー: SETUP_GUIDE.md"
+        else
+            print_info "スキップ: SETUP_GUIDE.md"
+        fi
+    else
+        print_warning "SETUP_GUIDE.mdテンプレートが見つかりません: $SCRIPT_DIR/templates/SETUP_GUIDE.md"
+    fi
+}
+
+# 次のステップの案内
+print_next_steps() {
+    echo ""
+    echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║                                                              ║${NC}"
+    echo -e "${BLUE}║                    🚀 次のステップ                           ║${NC}"
+    echo -e "${BLUE}║                                                              ║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}\n"
     
-    cat > SETUP_GUIDE.md << 'EOF'
-# AI駆動開発環境 - セットアップガイド 🚀
-
-## 🎯 概要
-このプロジェクトはAI駆動開発環境がセットアップされています。
-以下の手順に従って、必要な設定を完了してください。
-
-## 📋 必要な準備
-
-### 1. 環境変数の設定
-```bash
-# .env.example をコピーして .env を作成
-cp .env.example .env
-
-# エディタで .env を編集し、必要なAPIキーを設定
-nano .env
-```
-
-### 2. 必要なAPIキーの取得
-
-#### 🤖 Gemini AI API キー
-1. [Google AI Studio](https://makersuite.google.com/app/apikey) にアクセス
-2. 新しいAPIキーを作成
-3. `.env` の `GEMINI_API_KEY` に設定
-
-#### 🧠 OpenAI API キー (ChatGPT/GPT-4用)
-1. [OpenAI Platform](https://platform.openai.com/api-keys) にアクセス
-2. 新しいAPIキーを作成
-3. `.env` の `OPENAI_API_KEY` に設定
-
-#### 🐙 GitHub Token
-1. GitHub Settings > Developer settings > Personal access tokens
-2. 必要な権限を設定してトークン生成
-3. `.env` の `GITHUB_TOKEN` に設定
-
-### 3. 依存関係のインストール
-```bash
-# dev.sh を使用（推奨）
-./dev.sh
-
-# または直接実行
-npm install
-# または
-yarn install
-```
-
-## 🤖 AI ツールの設定
-
-### Claude Code
-1. [Claude Code](https://claude.ai/code) にアクセス
-2. このプロジェクトをオープン
-3. CLAUDE.md の内容に従って作業
-
-### GitHub Copilot
-1. IDE で GitHub Copilot を有効化
-2. プロジェクトでコード補完を活用
-
-### Gemini CLI
-```bash
-# Gemini CLI をインストール (必要に応じて)
-npm install -g @google/generative-ai
-
-# プロジェクトで使用
-@gemini-cli APIの実装を支援してください
-```
-
-## 🚀 開発の開始
-
-### 基本的な開発フロー
-1. **Issue作成**: GitHub で新しいIssue を作成
-2. **AI分析**: `@gemini-cli` で要件分析
-3. **開発**: Claude Code や Copilot で実装
-4. **テスト**: 自動テストの実行
-5. **レビュー**: AI による品質チェック
-6. **デプロイ**: 自動デプロイメント
-
-### dev.sh の活用
-```bash
-./dev.sh
-# メニューから必要な操作を選択
-```
-
-## 📚 参考ドキュメント
-
-- **[技術ガイド](docs/technical/sample-development-guide.md)**: 詳細な実装方法
-- **[ビジネスガイド](docs/business/business-development-collaboration-guide.md)**: ROI・効果分析
-- **[統合ガイド](docs/integration/openai-integration-guide.md)**: AI ツール統合方法
-
-## 🎯 次のステップ
-
-1. ✅ 環境変数の設定完了
-2. ✅ 依存関係のインストール完了
-3. ✅ AI ツールの動作確認
-4. 📝 最初のIssueを作成してAI開発を体験
-5. 🚀 本格的な開発の開始
-
-## 🆘 トラブルシューティング
-
-### よくある問題
-- **API キーエラー**: `.env` ファイルの設定を確認
-- **権限エラー**: GitHub Token の権限を確認
-- **ネットワークエラー**: プロキシ設定を確認
-
-### サポート
-- GitHub Issues でバグ報告・質問
-- `@gemini-cli` でリアルタイム支援
-- ドキュメントで詳細情報を確認
-
----
-
-**🎉 AI駆動開発環境の設定が完了したら、効率的で高品質な開発をお楽しみください！**
-EOF
-    print_success "生成: SETUP_GUIDE.md"
+    echo -e "${GREEN}🎉 プロジェクトにAI駆動開発用のテンプレートファイルが作成されました！${NC}\n"
+    
+    if [[ -f "SETUP_GUIDE.md" ]]; then
+        echo -e "${CYAN}📋 次の作業には SETUP_GUIDE.md を活用してください：${NC}"
+        echo ""
+        echo -e "${YELLOW}💡 AI駆動開発を最適化するためのヒント：${NC}"
+        echo "1. SETUP_GUIDE.md の内容をClaude CodeやChatGPTに共有"
+        echo "2. あなたのプロジェクトの詳細と合わせて相談"
+        echo "3. プロジェクト固有の設定をAIに最適化してもらう"
+        echo ""
+        echo -e "${GREEN}例: 「このSETUP_GUIDE.mdの内容を見て、私のTypeScriptプロジェクトを${NC}"
+        echo -e "${GREEN}     AI駆動開発に最適化してください」${NC}"
+        echo ""
+    else
+        echo -e "${YELLOW}📋 SETUP_GUIDE.md を作成していない場合：${NC}"
+        echo "SETUP_GUIDE.md には次のステップの詳細が記載されています。"
+        echo "必要に応じてsetup.shを再実行してSETUP_GUIDE.mdを作成してください。"
+        echo ""
+    fi
+    
+    echo -e "${BLUE}🤖 AI駆動開発の準備ができました！${NC}"
+    echo -e "${BLUE}選択したLLMプロバイダー: ${YELLOW}$SELECTED_LLM_PROVIDER${NC}"
+    echo ""
+    
+    echo -e "${PURPLE}次にやること：${NC}"
+    echo "• GitHub Secrets でAPIキーを設定"
+    echo "• 最初のIssue/PRを作成してAIの動作を確認"
+    echo "• Claude Code、Gemini CLI、ChatGPTなどでプロジェクトを最適化"
+    echo ""
+    
+    print_success "Happy AI-Driven Development! 🚀🤖"
 }
 
 # 完了メッセージとガイド
