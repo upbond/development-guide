@@ -102,7 +102,9 @@ The `dev.sh` script provides a standardized development environment:
 ## 📚 Documentation
 
 ### Core Documents
-- **[Development Guide](sample-development-guide.md)** - Complete implementation guide
+- **[Development Guide](docs/technical/sample-development-guide.md)** - Complete implementation guide
+- **[Business Guide](docs/business/business-development-collaboration-guide.md)** - Business stakeholder guide
+- **[OpenAI Integration Guide](docs/integration/openai-integration-guide.md)** - ChatGPT/Copilot integration
 - **[Claude Code Setup](CLAUDE.md)** - AI assistant configuration
 - **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute
 - **[Issue Templates](.github/ISSUE_TEMPLATE/)** - Standardized issue reporting

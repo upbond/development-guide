@@ -1,0 +1,298 @@
+name: AI駆動開発 Pull Request
+description: AI駆動開発に対応したプルリクエストフォーム
+title: "#<Issue番号> <種別>: <変更概要>"
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🤖 AI駆動開発 Pull Request フォーム
+        
+        このフォームは [AI駆動開発ガイド](https://github.com/upbond/development-guide) に基づいて作成されています。
+        各項目を選択・入力してください。
+
+  - type: input
+    id: related-issue
+    attributes:
+      label: 🎯 関連Issue番号
+      description: "このPRで解決するIssue番号を入力してください（例: 123）"
+      placeholder: "123"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 📝 変更内容の説明
+      description: "どのような変更を行ったか、その理由と目的を詳しく記載してください"
+      placeholder: |
+        例：
+        - 顧客認証システムにOAuth2.0を追加しました
+        - セキュリティ強化と管理者権限の細分化を実現
+        - 既存の認証フローとの互換性を維持
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical-details
+    attributes:
+      label: 🔧 実装の詳細
+      description: "技術的な実装内容、使用したライブラリ、アーキテクチャの変更等"
+      placeholder: |
+        例：
+        - NestJS Guard を使用したOAuth認証フロー実装
+        - JWT トークン管理の追加
+        - Redis セッションストレージの統合
+
+  - type: checkboxes
+    id: ai-tools
+    attributes:
+      label: 🤖 使用したAIツール
+      description: "このPRの作成で使用したAIツールを選択してください"
+      options:
+        - label: Claude Code
+        - label: Gemini CLI (`@gemini-cli`でのIssue対応)
+        - label: GitHub Copilot
+        - label: その他のAIツール
+        - label: AI支援なし（手動開発）
+
+  - type: textarea
+    id: ai-assistance-details
+    attributes:
+      label: 🤖 AI支援の詳細
+      description: "どのAIツールをどのように活用したか、生成されたコードの割合等"
+      placeholder: |
+        例：
+        - Claude Code で OAuth実装の70%を生成
+        - Gemini CLI でセキュリティ要件の分析と提案
+        - GitHub Copilot でテストケースの80%を自動生成
+
+  - type: checkboxes
+    id: quality-checks
+    attributes:
+      label: 🧪 品質チェック (dev.shを使用)
+      description: "以下の品質チェックを実行し、通過したものをチェックしてください"
+      options:
+        - label: "`./dev.sh` → 選択肢「25」: Lint & Format Check 実行・通過"
+        - label: "`./dev.sh` → 選択肢「26」: Type Check 実行・通過"
+
+  - type: checkboxes
+    id: test-execution
+    attributes:
+      label: 🧪 テスト実行
+      description: "実行したテストをチェックしてください"
+      options:
+        - label: "`./dev.sh` → 選択肢「16-19」: Backend統合テスト実行・通過"
+        - label: "`./dev.sh` → 選択肢「11-14」: E2Eテスト実行・通過"
+        - label: "`./dev.sh` → 選択肢「23」: CI Test Suite (Fast Mode) 実行・通過"
+        - label: "新規テストケース追加"
+        - label: "カバレッジ要件満たす (85%以上)"
+
+  - type: checkboxes
+    id: impact-scope
+    attributes:
+      label: 📊 変更の影響範囲
+      description: "このPRが影響する範囲をすべて選択してください"
+      options:
+        - label: Backend API
+        - label: Frontend (MyPage)
+        - label: Admin Panel (CRM)
+        - label: Database スキーマ
+        - label: GitHub Actions ワークフロー
+        - label: ドキュメント
+
+  - type: dropdown
+    id: breaking-changes
+    attributes:
+      label: ⚠️ 破壊的変更
+      description: "このPRに破壊的変更が含まれていますか？"
+      options:
+        - "破壊的変更なし"
+        - "破壊的変更あり（詳細を下記に記載）"
+    validations:
+      required: true
+
+  - type: textarea
+    id: breaking-changes-details
+    attributes:
+      label: ⚠️ 破壊的変更の詳細
+      description: "破壊的変更がある場合、詳細とマイグレーション方法を記載してください"
+      placeholder: "破壊的変更がない場合は空白のままにしてください"
+
+  - type: checkboxes
+    id: review-focus
+    attributes:
+      label: 🔍 重点的にチェックしてほしい項目
+      description: "レビュアーに重点的にチェックしてほしい項目を選択してください"
+      options:
+        - label: セキュリティ
+        - label: パフォーマンス
+        - label: 可読性・保守性
+        - label: エラーハンドリング
+        - label: APIインターフェース
+        - label: データ整合性
+
+  - type: textarea
+    id: special-notes
+    attributes:
+      label: 📝 特別な注意事項
+      description: "レビュアーに知ってほしい特別な事項、注意点等"
+      placeholder: |
+        例：
+        - 本番環境では環境変数 `OAUTH_SECRET` の設定が必要
+        - データベースマイグレーションが含まれているため、ダウンタイムが発生する可能性
+
+  - type: checkboxes
+    id: documentation-updates
+    attributes:
+      label: 📚 更新したドキュメント
+      description: "更新したドキュメントをすべて選択してください"
+      options:
+        - label: README.md
+        - label: CLAUDE.md
+        - label: sample-development-guide.md
+        - label: business-development-collaboration-guide.md
+        - label: API ドキュメント
+        - label: その他のドキュメント
+
+  - type: textarea
+    id: additional-docs-needed
+    attributes:
+      label: 📝 追加が必要なドキュメント
+      description: "まだ更新していないが必要なドキュメントがあれば記載してください"
+
+  - type: checkboxes
+    id: test-environments
+    attributes:
+      label: 🌐 テスト済み環境
+      description: "動作確認を行った環境を選択してください"
+      options:
+        - label: "Local Development (`./dev.sh` 選択肢「1」)"
+        - label: "Docker Environment (`./dev.sh` 選択肢「20」)"
+        - label: "CI/CD Pipeline"
+
+  - type: checkboxes
+    id: browser-support
+    attributes:
+      label: 🌐 ブラウザ対応 (Frontend変更の場合)
+      description: "Frontend に変更がある場合、テスト済みのブラウザを選択してください"
+      options:
+        - label: Chrome
+        - label: Firefox
+        - label: Safari
+        - label: Mobile browsers
+        - label: Frontend変更なし
+
+  - type: dropdown
+    id: database-migration
+    attributes:
+      label: 🗄️ データマイグレーション
+      description: "データベースマイグレーションは必要ですか？"
+      options:
+        - "データマイグレーション不要"
+        - "データマイグレーション必要（手順書作成済み）"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment-variables
+    attributes:
+      label: 🔧 環境変数の変更
+      description: "環境変数の追加・変更はありますか？"
+      options:
+        - "環境変数追加・変更なし"
+        - "環境変数追加・変更あり（詳細記載）"
+    validations:
+      required: true
+
+  - type: textarea
+    id: deployment-notes
+    attributes:
+      label: 📋 デプロイメモ・追加手順
+      description: "特別なデプロイ手順や設定変更が必要な場合は記載してください"
+
+  - type: textarea
+    id: api-response-example
+    attributes:
+      label: 🔗 APIレスポンス例 (API変更の場合)
+      description: "API変更がある場合、変更前後のレスポンス例をJSONで記載してください"
+      placeholder: |
+        // 変更前
+        {
+          "status": "success",
+          "data": { ... }
+        }
+
+        // 変更後
+        {
+          "status": "success",
+          "data": { ... },
+          "metadata": { ... }
+        }
+
+  - type: checkboxes
+    id: final-checklist
+    attributes:
+      label: ✅ 最終チェックリスト
+      description: "提出前に以下をすべて確認してください"
+      options:
+        - label: "コミットメッセージが規約に準拠 (`#<issue番号> <種別>: <要約>`)"
+        - label: "ブランチ名が規約に準拠 (`feature/issue-XXX-description`)"
+        - label: "不要なコード・コメント・console.log等を削除"
+        - label: "セキュリティに関する機密情報が含まれていない"
+        - label: "全ての TODO/FIXME コメントを解決"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: ai-collaboration-check
+    attributes:
+      label: 🤖 AI協働開発の確認
+      description: "AI協働開発に関する確認事項"
+      options:
+        - label: "AI生成コードの動作を手動で確認"
+        - label: "AIの提案を理解してコードレビュー実施"
+        - label: "必要に応じて `@gemini-cli /review` でAI事前レビュー実行"
+    validations:
+      required: true
+
+  - type: textarea
+    id: post-release-plan
+    attributes:
+      label: 🚀 リリース後の計画
+      description: "このPRリリース後に予定している監視項目やフォローアップタスク"
+      placeholder: |
+        例：
+        - パフォーマンス指標の24時間監視
+        - エラーレート監視とアラート設定
+        - ユーザーフィードバックの収集
+
+  - type: textarea
+    id: questions-consultation
+    attributes:
+      label: 📞 質問・相談
+      description: "レビュアーへの質問や相談事項があれば記載してください"
+      placeholder: |
+        例：
+        @gemini-cli このPRの実装について追加でアドバイスをお願いします
+        
+        人間のレビュアーへ: OAuth実装のセキュリティ要件について確認したい点があります
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        ## 🤖 AI支援による自動チェック推奨
+        
+        このPRをレビューする前に、以下のAI支援を活用することを推奨します：
+        
+        ```markdown
+        @gemini-cli /review このPRを以下の観点でレビューしてください:
+        - セキュリティの脆弱性
+        - パフォーマンスの影響  
+        - コードの可読性と保守性
+        - エラーハンドリングの適切性
+        ```
+        
+        **🎯 このPRは [AI駆動開発ガイド](https://github.com/upbond/development-guide) に基づいて作成されています**

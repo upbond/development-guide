@@ -1,218 +1,225 @@
-# Development Guide Repository - CLAUDE.md
+# CLAUDE.md
 
-## プロジェクト概要
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-このリポジトリは「GitHub IssueドリブンなAI駆動開発のガイドラインおよびセットアップツール」を提供します。
+## Repository Overview
 
-### 目的
-- AI駆動開発のベストプラクティス文書化
-- Gemini CLI GitHub Actions統合による自動化ワークフロー
-- Claude Codeとの協働開発環境構築
-- Issue管理からデプロイまでの統合開発フローの標準化
+This is an **AI-driven development guide repository** that provides comprehensive guidelines, workflows, and tools for implementing AI-assisted software development processes. The repository serves as both documentation and a practical implementation framework for teams wanting to adopt AI-driven development practices.
 
-## 主要機能
+## Key Architecture Components
 
-### 1. AI駆動開発フロー
-- **自動Issue分類**: Gemini AIによる新規Issue自動トリアージ
-- **AI支援実装**: Claude Codeを使用した高品質コード生成
-- **自動品質保証**: AIコードレビューとセキュリティスキャン
-- **統合テスト環境**: dev.shスクリプトによる標準化された開発環境
+### 1. Documentation Structure
+- **README.md**: Main project overview and quick start guide
+- **docs/technical/sample-development-guide.md**: Complete technical implementation guide with dev.sh integration
+- **docs/business/business-development-collaboration-guide.md**: Business-focused guide for non-technical stakeholders
+- **docs/integration/openai-integration-guide.md**: OpenAI systems integration guide
+- **CONTRIBUTING.md**: AI-first contribution guidelines and workflows
 
-### 2. GitHub Actions統合システム
+### 2. GitHub Integration System
+The repository implements a comprehensive GitHub Actions-based AI workflow system:
 
-#### ワークフロー一覧
-- **💬 Gemini CLI** (`gemini-cli.yml`): 汎用AI開発支援
-- **🧐 PR Review** (`gemini-pr-review.yml`): 自動コードレビュー
-- **🏷️ Issue Triage** (`gemini-issue-automated-triage.yml`): リアルタイムIssue分類
-- **📋 Scheduled Triage** (`gemini-issue-scheduled-triage.yml`): 定期Issue整理
+#### Core Workflows (located in `.github/workflows/`):
+- **gemini-cli.yml**: General-purpose AI development assistance via `@gemini-cli` mentions
+- **gemini-pr-review.yml**: Automated code review triggered by PR creation or `@gemini-cli /review`
+- **gemini-issue-automated-triage.yml**: Real-time issue classification and labeling
+- **gemini-issue-scheduled-triage.yml**: Periodic issue management (hourly cron job)
 
-#### 使用方法
+#### Usage Patterns:
 ```markdown
-# Issue修正依頼
-@gemini-cli この認証エラーを調査して修正してください
-
-# PRレビュー依頼
-@gemini-cli /review セキュリティに重点を置いてレビューしてください
-
-# Issue分類依頼
-@gemini-cli /triage
+# In Issues/PRs, use these mention patterns:
+@gemini-cli investigate and fix this authentication error
+@gemini-cli /review focus on security and performance
+@gemini-cli /triage classify this issue
 ```
 
-### 3. 開発環境構築（dev.sh）
+### 3. Issue Templates System
+Located in `.github/ISSUE_TEMPLATE/`, includes:
+- **bug_report.md**: Structured bug reporting with AI integration prompts
+- **feature_request.md**: Feature requests optimized for AI assistance
+- **documentation.md**: Documentation improvement requests
+- **task.md**: General development tasks
+- **config.yml**: Template configuration supporting AI-driven workflows
 
-統合開発支援スクリプトによる効率的な開発環境管理：
+## Development Workflow Philosophy
+
+This repository follows an **AI-first development approach** where:
+
+1. **Issue Creation**: Uses natural language descriptions that AI can parse and act upon
+2. **Automatic Triage**: Gemini AI automatically classifies and prioritizes issues
+3. **AI-Assisted Development**: Claude Code and other AI tools are primary development aids
+4. **Automated Quality Assurance**: Multi-layered AI reviews before human review
+5. **Continuous Learning**: AI systems learn from project patterns and improve over time
+
+## Branch Strategy
+
+```
+main                           # Production-ready documentation
+├── feature/issue-123-*        # New features and enhancements
+├── bugfix/issue-124-*         # Bug fixes
+├── docs/issue-125-*           # Documentation updates
+├── hotfix/issue-126-*         # Critical urgent fixes
+└── ai-enhancement/*           # AI tool improvements
+```
+
+## Commit Message Convention
+
+```
+#<issue-number> <type>: <summary>
+
+<optional detailed description>
+
+AI-assisted: [Claude Code | Gemini CLI | Manual]
+Closes #<issue-number>
+```
+
+**Types**: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ai-enhance`
+
+## Common Development Commands
+
+### Environment Setup
+This repository is documentation-focused, so there's no complex build system, but the following patterns are referenced throughout:
 
 ```bash
-# 全サービス起動
-./dev.sh → 選択肢「1」: 🚀 Start All
+# If dev.sh exists (referenced in documentation):
+chmod +x dev.sh
+./dev.sh  # Interactive development environment
 
-# 個別サービス起動
-./dev.sh → 選択肢「8-10」: Backend/MyPage/CRM個別起動
-
-# テスト実行
-./dev.sh → 選択肢「16-19」: 統合テスト
-./dev.sh → 選択肢「22-24」: CI環境シミュレーション
+# Standard operations:
+git clone <repository>
+cd development-guide
 ```
 
-## 技術スタック
+### Testing and Quality Assurance
+While this is primarily a documentation repository, it references standardized testing patterns:
 
-### AI/ML統合
-- **Gemini AI**: Issue分類・コードレビュー・開発支援
-- **Claude Code**: コード生成・リファクタリング・品質保証
-
-### 開発環境
-- **GitHub Actions**: CI/CD自動化
-- **Docker**: 本番環境シミュレーション
-- **dev.sh**: 統合開発環境スクリプト
-
-### 対象プロジェクト
-- **Backend**: NestJS API (Port 8120)
-- **Frontend**: React MyPage (Port 8122)
-- **Admin**: Angular CRM (Port 8121)
-- **Database**: MySQL (Port 3809)
-
-## 開発フロー
-
-### 1. 標準開発サイクル
-```mermaid
-graph TD
-    A[Issue作成] --> B[AI自動トリアージ]
-    B --> C[開発者アサイン]
-    C --> D[ブランチ作成]
-    D --> E[AI支援開発]
-    E --> F[自動テスト実行]
-    F --> G[AIコードレビュー]
-    G --> H[人間レビュー]
-    H --> I[マージ・自動デプロイ]
-    I --> J[Issue自動クローズ]
-```
-
-### 2. ブランチ戦略
-```
-main
-├── feature/issue-123-new-feature
-├── bugfix/issue-124-auth-error
-├── hotfix/issue-125-critical-bug
-└── docs/issue-126-documentation
-```
-
-### 3. コミット規約
-```
-#<issue番号> <種別>: <要約>
-
-<詳細説明>
-
-Closes #<issue番号>
-```
-
-## 品質保証
-
-### 自動化されたチェック項目
-- **コード品質**: ESLint、Prettier、TypeScript
-- **セキュリティ**: 脆弱性スキャン、機密情報検出
-- **テスト**: 単体、統合、E2Eテスト
-- **パフォーマンス**: 負荷テスト、メモリリーク検出
-
-### CI/CD パイプライン
-- **自動ビルド**: 全環境対応（dev/stg/prod）
-- **テスト実行**: 並列実行による高速化
-- **デプロイ**: 自動通知とロールバック機能
-
-## セットアップ
-
-### 前提条件
-- GitHub App設定（権限: Read/Write to Issues, PRs, Actions）
-- Gemini API Key
-- Google Cloud Project（Workload Identity連携）
-
-### 環境変数
-```yaml
-secrets:
-  GEMINI_API_KEY: "Google Gemini APIキー"
-  APP_PRIVATE_KEY: "GitHub Appプライベートキー"
-
-vars:
-  APP_ID: "GitHub App ID"
-  GCP_WIF_PROVIDER: "Workload Identity Provider"
-  GOOGLE_CLOUD_PROJECT: "GCPプロジェクトID"
-```
-
-### 初期設定手順
-1. リポジトリフォーク/クローン
-2. GitHub Actions secrets/variables設定
-3. `.github/workflows/` 下のYAMLファイルを環境に合わせて調整
-4. `dev.sh` スクリプトをプロジェクト構成に合わせてカスタマイズ
-
-## 利用効果
-
-### 開発効率向上
-- **環境構築時間**: 30分 → 2分（93%短縮）
-- **Issue解決速度**: 30分 → 5分（83%短縮）
-- **コードレビュー時間**: 60分 → 10分（83%短縮）
-
-### 品質向上
-- **バグ発見率**: 70% → 95%（36%向上）
-- **セキュリティ脆弱性**: 早期発見・自動修正提案
-- **コード一貫性**: プロジェクト全体での統一
-
-## Claude Code での作業時推奨手順
-
-1. **プロジェクト理解**
-   ```bash
-   # プロジェクト構造確認
-   ./dev.sh → 選択肢確認
-   
-   # 依存関係理解
-   cat package.json  # またはrequirements.txt等
-   ```
-
-2. **開発環境起動**
-   ```bash
-   # 統合環境起動
-   ./dev.sh → 選択肢「1」
-   ```
-
-3. **品質チェック実行**
-   ```bash
-   # Lint・Format
-   ./dev.sh → 選択肢「25」
-   
-   # TypeScript型チェック
-   ./dev.sh → 選択肢「26」
-   
-   # 高速CI環境テスト
-   ./dev.sh → 選択肢「23」
-   ```
-
-4. **AI協働開発**
-   - GitHub IssueでGemini CLI活用（`@gemini-cli`メンション）
-   - Claude Codeによるコード実装・リファクタリング
-   - 自動PRレビュー結果の反映
-
-## トラブルシューティング
-
-### ポート競合
 ```bash
-# ポート使用プロセス確認・停止
-lsof -ti:8120 | xargs kill -9  # Backend
-lsof -ti:8121 | xargs kill -9  # CRM Admin
-lsof -ti:8122 | xargs kill -9  # MyPage
+# Lint and format checks (if applicable)
+npm run lint        # or equivalent
+npm run format      # or equivalent
 
-# dev.sh一括停止
-./dev.sh → 選択肢「2」
+# Documentation validation
+markdown-link-check *.md  # if using markdown link checker
 ```
 
-### GitHub Actions権限エラー
-- リポジトリ設定でGitHub App権限確認
-- Workload Identity連携設定確認
-- Secrets/Variables設定確認
+### AI Integration Commands
+```bash
+# Gemini CLI integration (if gemini CLI is installed)
+gemini -p 'analyze this repository structure'
+gemini -p 'suggest improvements for this documentation'
+```
 
-## 関連ドキュメント
+## Working with This Repository
 
-- **sample-development-guide.md**: 詳細な開発ガイドライン
-- **GitHub Actions Workflows**: `.github/workflows/` ディレクトリ
-- **開発環境スクリプト**: `dev.sh` （カスタマイズ要）
+### When Making Changes
 
----
+1. **Analyze the Full Context**: This repository provides guidance for implementing AI-driven development in other projects. Understand how your changes affect both the guidance provided and real-world implementations.
 
-**このリポジトリは、人間とAIが協働する次世代開発環境の実現により、開発効率・品質・体験の全てで最高水準を目指しています。**
+2. **Maintain Consistency**: The documentation uses consistent terminology:
+   - "AI-driven development" (not "AI-assisted" or "AI-powered")  
+   - "Issue-driven workflow" for the GitHub-centric approach
+   - "Human-AI collaboration" for the development philosophy
+
+3. **Update Related Documents**: Changes to one guide often require updates to related documents:
+   - Technical changes: Update docs/technical/sample-development-guide.md
+   - Business impact: Update docs/business/business-development-collaboration-guide.md
+   - OpenAI integration: Update docs/integration/openai-integration-guide.md
+   - Process changes: Update CONTRIBUTING.md
+   - Quick reference: Update README.md
+
+### Documentation Standards
+
+- **Mermaid Diagrams**: Extensively used for workflow visualization
+- **Emoji Conventions**: Consistent emoji usage for different content types (🤖 for AI, 🚀 for performance, 🛡️ for security)
+- **Code Blocks**: Use proper language identifiers (`bash`, `yaml`, `markdown`, etc.)
+- **Measurements**: Always provide quantifiable metrics (e.g., "93% faster", "65% cost reduction")
+
+### AI Integration Patterns
+
+When working with this repository, leverage AI tools effectively:
+
+1. **Use @gemini-cli** for issue analysis and feature planning
+2. **Use Claude Code** for documentation improvements and technical writing
+3. **Document AI usage** in commit messages and PR descriptions
+4. **Test AI-generated content** for accuracy and consistency
+
+### Key Architectural Concepts
+
+#### The dev.sh Pattern
+Referenced throughout documentation as a standardized development environment script that provides:
+- One-command environment setup
+- Integrated testing workflows  
+- Standardized port configurations (8120, 8121, 8122, 3809)
+- CI/CD pipeline simulation
+
+#### GitHub Actions Integration Architecture
+The repository documents a comprehensive GitHub Actions system with:
+- **Workload Identity Federation** for secure GCP integration
+- **Multi-AI tool coordination** (Gemini + Claude Code)
+- **Automated issue lifecycle management**
+- **Real-time collaboration features**
+
+#### Business-Technical Bridge
+Unlike typical technical documentation, this repository explicitly bridges business and technical concerns with:
+- **ROI calculations** and financial justifications
+- **Non-technical stakeholder guidance**  
+- **Change management strategies**
+- **Organizational impact assessments**
+
+## Important Context for AI Assistants
+
+1. **This is Meta-Documentation**: You're working on documentation that helps others implement AI-driven development, so consider the recursive nature of AI helping to document AI assistance.
+
+2. **Practical Implementation Focus**: All guidance should be actionable and tested in real-world scenarios, not theoretical.
+
+3. **Community-Driven Evolution**: This repository serves as a living example of AI-driven development practices and should demonstrate continuous improvement.
+
+4. **Cross-Platform Compatibility**: While examples may show Unix-style commands, consider Windows and macOS compatibility in recommendations.
+
+## Communication Language
+
+### Japanese Language Preference
+When working with this repository, **use Japanese (日本語) for all communication** including:
+
+- **Issue discussions**: GitHub Issues でのやり取り
+- **Pull Request descriptions**: PRの説明や議論
+- **Code comments**: 日本語でのコメント記述
+- **Commit messages**: 日本語での詳細説明（英語のタイプは保持）
+- **Documentation updates**: ドキュメントの更新や追加説明
+
+### Language Guidelines
+```markdown
+# コミットメッセージ例
+#123 feat: 新しい認証システムの実装
+
+新しいOAuth2.0ベースの認証システムを追加しました。
+セキュリティ強化と管理者権限の細分化を実現。
+
+AI-assisted: Claude Code
+Closes #123
+```
+
+### Communication Examples
+```markdown
+# Issue作成例
+@gemini-cli この認証エラーの原因を調査して修正案を提案してください
+
+# PRレビュー依頼例  
+@gemini-cli /review セキュリティとパフォーマンスに重点を置いてレビューしてください
+
+# 技術的な相談例
+@gemini-cli この機能を実装するための最適なアーキテクチャを日本語で説明してください
+```
+
+### Documentation Language Strategy
+- **Technical content**: 日本語での詳細な説明を優先
+- **Code examples**: 英語のコメント併記も可
+- **International audience**: README.mdは英語、詳細ガイドは日本語
+- **AI interactions**: 日本語での自然なコミュニケーション
+
+## Quality Standards
+
+- **Accuracy**: All technical details, especially regarding GitHub Actions and API integrations, must be accurate
+- **Completeness**: Documentation should be sufficient for implementation without external resources
+- **Maintainability**: Structure content so it remains accurate as AI tools and platforms evolve
+- **Accessibility**: Write for both technical and non-technical audiences where appropriate
+- **Language Consistency**: Use Japanese for detailed discussions while maintaining English for international compatibility
