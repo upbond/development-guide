@@ -517,6 +517,11 @@ select_optional_files() {
         files_to_create+=("devguide")
     fi
     
+    # mcp_guide.md
+    if ask_yes_no "🔗 mcp_guide.md (MCP統合ガイド) を作成しますか？"; then
+        files_to_create+=("mcpguide")
+    fi
+    
     echo ""
     print_info "選択されたファイルを生成中..."
     
@@ -534,6 +539,9 @@ select_optional_files() {
                 ;;
             "devguide")
                 copy_dev_guide
+                ;;
+            "mcpguide")
+                copy_mcp_guide
                 ;;
         esac
     done
@@ -894,6 +902,20 @@ copy_dev_guide() {
     fi
 }
 
+# mcp_guide.md のコピー
+copy_mcp_guide() {
+    if [[ -f "$SCRIPT_DIR/templates/mcp_guide.md" ]]; then
+        if confirm_file_overwrite "mcp_guide.md" "mcp_guide.md"; then
+            cp "$SCRIPT_DIR/templates/mcp_guide.md" "./"
+            print_success "コピー: mcp_guide.md"
+        else
+            print_info "スキップ: mcp_guide.md"
+        fi
+    else
+        print_warning "mcp_guide.mdテンプレートが見つかりません: $SCRIPT_DIR/templates/mcp_guide.md"
+    fi
+}
+
 # 次のステップの案内
 print_next_steps() {
     echo ""
@@ -927,8 +949,19 @@ print_next_steps() {
         echo -e "${BLUE}📚 sample-development-guide.md が作成されました：${NC}"
         echo "• AI駆動開発の詳細な実装例とベストプラクティス"
         echo "• dev.sh統合開発環境の完全活用ガイド"
-        echo "• Gemini CLI GitHub Actions システムの詳細"
+        if [[ "$SELECTED_LLM_PROVIDER" == "gemini-cli" ]]; then
+            echo "• Gemini CLI GitHub Actions システムの詳細"
+        fi
         echo "• 開発チームへの教育・導入資料として活用可能"
+        echo ""
+    fi
+    
+    if [[ -f "mcp_guide.md" ]]; then
+        echo -e "${CYAN}🔗 mcp_guide.md が作成されました：${NC}"
+        echo "• MCP (Model Context Protocol) 統合ガイド"
+        echo "• AI開発ツールの機能拡張方法"
+        echo "• プロジェクト固有のMCPサーバー実装例"
+        echo "• Claude Code、OpenAI Codex、Cursor IDE対応"
         echo ""
     fi
     
