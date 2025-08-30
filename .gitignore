@@ -1,4 +1,4 @@
 /.idea/
-
+/test/
 .gemini/
 gha-creds-*.json

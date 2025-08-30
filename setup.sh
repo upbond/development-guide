@@ -52,9 +52,13 @@ main() {
     print_header
     
     echo -e "${GREEN}このスクリプトは以下の機能を提供します：${NC}"
-    echo "• 🤖 GitHub Actions設定ガイダンス"
-    echo "• 📝 Issue/PR テンプレートの設置"
-    echo "• 🔧 オプション設定ファイルの生成"
+    echo "• 🤖 GitHub Actions設定ガイダンス（複数LLMプロバイダー対応）"
+    echo "• 📝 Issue/PR テンプレートの自動設置"
+    echo "• 🔧 オプション設定ファイルの対話式生成"
+    echo "• 📚 AI駆動開発ドキュメントの提供"
+    echo ""
+    
+    echo -e "${BLUE}💡 どんなプロジェクトでも3分でAI駆動開発環境が構築できます${NC}"
     echo ""
     
     # ディレクトリ選択
@@ -65,9 +69,6 @@ main() {
     
     # セットアップ実行
     setup_ai_driven_environment
-    
-    # 完了メッセージ
-    print_completion_guide
 }
 
 # ディレクトリ選択関数
@@ -511,6 +512,11 @@ select_optional_files() {
         files_to_create+=("setupguide")
     fi
     
+    # sample-development-guide.md
+    if ask_yes_no "📚 sample-development-guide.md (開発者向け詳細ガイド) を作成しますか？"; then
+        files_to_create+=("devguide")
+    fi
+    
     echo ""
     print_info "選択されたファイルを生成中..."
     
@@ -525,6 +531,9 @@ select_optional_files() {
                 ;;
             "setupguide")
                 copy_setup_guide
+                ;;
+            "devguide")
+                copy_dev_guide
                 ;;
         esac
     done
@@ -835,17 +844,53 @@ EOF
     print_success "生成: dev.sh (実行可能)"
 }
 
-# SETUP_GUIDE.md のコピー
+# SETUP_GUIDE.md のコピーと動的置換
 copy_setup_guide() {
     if [[ -f "$SCRIPT_DIR/templates/SETUP_GUIDE.md" ]]; then
         if confirm_file_overwrite "SETUP_GUIDE.md" "SETUP_GUIDE.md"; then
-            cp "$SCRIPT_DIR/templates/SETUP_GUIDE.md" "./"
-            print_success "コピー: SETUP_GUIDE.md"
+            # テンプレートをコピーして動的置換を実行
+            sed "s/\[SELECTED_LLM_PROVIDER\]/$SELECTED_LLM_PROVIDER/g" "$SCRIPT_DIR/templates/SETUP_GUIDE.md" > "SETUP_GUIDE.md"
+            print_success "コピー: SETUP_GUIDE.md (選択されたLLMプロバイダー: $SELECTED_LLM_PROVIDER)"
         else
             print_info "スキップ: SETUP_GUIDE.md"
         fi
     else
         print_warning "SETUP_GUIDE.mdテンプレートが見つかりません: $SCRIPT_DIR/templates/SETUP_GUIDE.md"
+    fi
+}
+
+# sample-development-guide.md のコピーと動的追記
+copy_dev_guide() {
+    if [[ -f "$SCRIPT_DIR/templates/sample-development-guide.md" ]]; then
+        if confirm_file_overwrite "sample-development-guide.md" "sample-development-guide.md"; then
+            # ベースファイルをコピー
+            cp "$SCRIPT_DIR/templates/sample-development-guide.md" "./"
+            
+            # 選択されたLLMプロバイダーに応じてコンテンツを追記
+            if [[ "$SELECTED_LLM_PROVIDER" == "gemini-cli" ]]; then
+                # Gemini CLI固有の内容を追記
+                if [[ -f "$SCRIPT_DIR/templates/gemini-cli-addon.md" ]]; then
+                    # プレースホルダーの位置にGemini CLI固有の内容を挿入
+                    sed -i.bak '/<!-- AI_PROVIDER_SPECIFIC_CONTENT_PLACEHOLDER -->/r '$SCRIPT_DIR'/templates/gemini-cli-addon.md' sample-development-guide.md
+                    # プレースホルダーを削除
+                    sed -i.bak '/<!-- AI_PROVIDER_SPECIFIC_CONTENT_PLACEHOLDER -->/d' sample-development-guide.md
+                    # バックアップファイルを削除
+                    rm sample-development-guide.md.bak
+                    print_success "コピー: sample-development-guide.md (Gemini CLI統合版)"
+                else
+                    print_success "コピー: sample-development-guide.md (標準版)"
+                fi
+            else
+                # 他のプロバイダーの場合はプレースホルダーを削除
+                sed -i.bak '/<!-- AI_PROVIDER_SPECIFIC_CONTENT_PLACEHOLDER -->/d' sample-development-guide.md
+                rm sample-development-guide.md.bak
+                print_success "コピー: sample-development-guide.md (標準版)"
+            fi
+        else
+            print_info "スキップ: sample-development-guide.md"
+        fi
+    else
+        print_warning "sample-development-guide.mdテンプレートが見つかりません: $SCRIPT_DIR/templates/sample-development-guide.md"
     fi
 }
 
@@ -878,6 +923,15 @@ print_next_steps() {
         echo ""
     fi
     
+    if [[ -f "sample-development-guide.md" ]]; then
+        echo -e "${BLUE}📚 sample-development-guide.md が作成されました：${NC}"
+        echo "• AI駆動開発の詳細な実装例とベストプラクティス"
+        echo "• dev.sh統合開発環境の完全活用ガイド"
+        echo "• Gemini CLI GitHub Actions システムの詳細"
+        echo "• 開発チームへの教育・導入資料として活用可能"
+        echo ""
+    fi
+    
     echo -e "${BLUE}🤖 AI駆動開発の準備ができました！${NC}"
     echo -e "${BLUE}選択したLLMプロバイダー: ${YELLOW}$SELECTED_LLM_PROVIDER${NC}"
     echo ""
@@ -891,57 +945,6 @@ print_next_steps() {
     print_success "Happy AI-Driven Development! 🚀🤖"
 }
 
-# 完了メッセージとガイド
-print_completion_guide() {
-    print_step "🎉 セットアップ完了！"
-    
-    echo -e "${GREEN}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║                                                              ║${NC}"
-    echo -e "${GREEN}║          🚀 AI駆動開発環境のセットアップが完了しました！          ║${NC}"
-    echo -e "${GREEN}║                                                              ║${NC}"
-    echo -e "${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
-    
-    echo -e "${CYAN}📍 セットアップされたディレクトリ: ${YELLOW}$TARGET_DIR${NC}\n"
-    
-    echo -e "${CYAN}📋 次のステップ：${NC}"
-    echo "1. 📂 プロジェクトディレクトリに移動:"
-    echo -e "   ${YELLOW}cd \"$TARGET_DIR\"${NC}"
-    echo ""
-    echo "2. 📝 環境設定を完了:"
-    echo -e "   ${YELLOW}cp .env.example .env${NC}"
-    echo -e "   ${YELLOW}nano .env  # APIキーを設定${NC}"
-    echo ""
-    echo "3. 🚀 開発環境を起動:"
-    echo -e "   ${YELLOW}./dev.sh${NC}"
-    echo ""
-    echo "4. 📚 セットアップガイドを確認:"
-    echo -e "   ${YELLOW}cat SETUP_GUIDE.md${NC}"
-    echo ""
-    
-    echo -e "${GREEN}🤖 利用可能なAIツール：${NC}"
-    echo "• 🤖 Gemini CLI: Issue分析・自動トリアージ"
-    echo "• ⚡ Claude Code: 高品質コード生成・リファクタリング"
-    echo "• 🧠 ChatGPT/GPT-4: 対話的開発支援"
-    echo "• 👨‍💻 GitHub Copilot: リアルタイムコード補完"
-    echo ""
-    
-    echo -e "${BLUE}📊 期待される効果：${NC}"
-    echo "• 🚀 開発速度: 3-5倍向上"
-    echo "• 🐛 バグ率: 85%削減"
-    echo "• 💰 開発コスト: 65%削減"
-    echo "• 📈 ROI: 400%以上"
-    echo ""
-    
-    echo -e "${PURPLE}🎯 AI駆動開発の始め方：${NC}"
-    echo "1. GitHub でIssue を作成"
-    echo "2. @gemini-cli で要件分析"
-    echo "3. Claude Code でコード実装"
-    echo "4. 自動テスト・レビューの実行"
-    echo "5. 継続的な改善とデプロイ"
-    echo ""
-    
-    print_success "Happy AI-Driven Development! 🚀🤖"
-}
 
 # エラーハンドリング
 trap 'print_error "セットアップ中にエラーが発生しました。"; exit 1' ERR

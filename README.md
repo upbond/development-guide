@@ -5,6 +5,30 @@
 [![GitHub license](https://img.shields.io/github/license/upbond/development-guide)](https://github.com/upbond/development-guide/blob/main/LICENSE)
 [![GitHub workflow status](https://img.shields.io/github/actions/workflow/status/upbond/development-guide/main.yml?branch=main)](https://github.com/upbond/development-guide/actions)
 
+## 🎯 すぐに始められるAI駆動開発
+
+**このリポジトリを任意の場所にクローンし、`setup.sh`を実行するだけで、どんなプロジェクトでもAI駆動開発環境を構築できます。**
+
+```bash
+# 1. リポジトリをクローン
+git clone https://github.com/upbond/development-guide.git
+cd development-guide
+
+# 2. セットアップスクリプトを実行
+chmod +x setup.sh
+./setup.sh
+
+# 3. 指示に従ってLLMプロバイダーを選択
+# 4. あなたのプロジェクトにAI駆動開発環境が構築完了！
+```
+
+**対応LLMプロバイダー:**
+- 🤖 **Gemini CLI** - Google AI による自動化
+- ⚡ **Claude Code** - Anthropic によるコード生成  
+- 🧠 **OpenAI Codex** - OpenAI による開発支援
+- 👨‍💻 **GitHub Copilot** - リアルタイムコード補完
+- 🔧 **カスタム** - 独自のLLMプロバイダー
+
 > **GitHub Issue-driven AI Development Guidelines and Setup Tools**  
 > Complete framework for implementing AI-driven development workflows with automated issue management, code review, and deployment.
 
